@@ -18,5 +18,6 @@ class Movie(SqlAlchemyBase):
     duration = sqlalchemy.Column(sqlalchemy.String, nullable=True, default='-')
     watched = sqlalchemy.Column(sqlalchemy.BOOLEAN, default=False)
     timecode = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    review = sqlalchemy.Column(sqlalchemy.String, nullable=True, default=' ')
 
     user = orm.relation('User')

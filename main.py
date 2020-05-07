@@ -5,7 +5,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from flask_restful import abort
 from flask_wtf import FlaskForm
 from werkzeug.utils import redirect
-from wtforms import PasswordField, SubmitField, StringField, BooleanField
+from wtforms import PasswordField, SubmitField, StringField, BooleanField, TextAreaField
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired
 from data import db_session
@@ -42,6 +42,7 @@ class FilmForm(FlaskForm):
     duration = StringField('Длительность')
     watched = BooleanField("Просмотрен")
     timecode = StringField('Время на котором вы остановились')
+    review = TextAreaField('Содержание')
     submit = SubmitField('Применить')
 
 
@@ -129,6 +130,7 @@ def add_news():
         film.duration = form.duration.data
         film.watched = form.watched.data
         film.timecode = form.timecode.data
+        film.review = form.review.data
         current_user.movie.append(film)
         session.merge(current_user)
         session.commit()
