@@ -1,17 +1,16 @@
-from flask import Flask, request, session
-from flask import render_template, make_response
+import os
+from flask import Flask, request
+from flask import render_template
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_restful import abort
 from flask_wtf import FlaskForm
 from werkzeug.utils import redirect
-from wtforms import PasswordField, SubmitField, StringField, BooleanField, TextAreaField
+from wtforms import PasswordField, SubmitField, StringField, BooleanField
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired
-
 from data import db_session
 from data.users import User
 from data.movies import Movie
-import json
 
 
 app = Flask(__name__)
@@ -48,7 +47,8 @@ class FilmForm(FlaskForm):
 
 def main():
     db_session.global_init("db/blogs.sqlite")
-    app.run(port=8080, host='127.0.0.1')
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 
 
 @login_manager.user_loader
@@ -84,7 +84,9 @@ def reqister():
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Такой пользователь уже есть")
-        user = User(name=form.name.data, email=form.email.data)
+        user = User()
+        user.name = form.name.data
+        user.email = form.email.data
         user.set_password(form.password.data)
         session.add(user)
         session.commit()
@@ -142,7 +144,7 @@ def edit_film(id):
     if request.method == "GET":
         session = db_session.create_session()
         film = session.query(Movie).filter(Movie.id == id,
-                                          Movie.user == current_user).first()
+                                           Movie.user == current_user).first()
         if film:
             form.name.data = film.name
             form.genre.data = film.genre
@@ -155,7 +157,7 @@ def edit_film(id):
     if form.validate_on_submit():
         session = db_session.create_session()
         film = session.query(Movie).filter(Movie.id == id,
-                                          Movie.user == current_user).first()
+                                           Movie.user == current_user).first()
         if film:
             film.name = form.name.data
             film.genre = form.genre.data
@@ -175,14 +177,13 @@ def edit_film(id):
 def film_delete(id):
     session = db_session.create_session()
     film = session.query(Movie).filter(Movie.id == id,
-                                      Movie.user == current_user).first()
+                                       Movie.user == current_user).first()
     if film:
         session.delete(film)
         session.commit()
     else:
         abort(404)
     return redirect('/home')
-
 
 
 if __name__ == '__main__':
