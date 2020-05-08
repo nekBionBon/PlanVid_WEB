@@ -2,18 +2,19 @@ import os
 from flask import Flask, request
 from flask import render_template
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from flask_restful import abort
+from flask_restful import abort, Api
 from flask_wtf import FlaskForm
 from werkzeug.utils import redirect
 from wtforms import PasswordField, SubmitField, StringField, BooleanField, TextAreaField
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired
-from data import db_session
+from data import db_session, movie_resources
 from data.users import User
 from data.movies import Movie
 
 
 app = Flask(__name__)
+api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 login_manager = LoginManager()
@@ -48,6 +49,11 @@ class FilmForm(FlaskForm):
 
 def main():
     db_session.global_init("db/blogs.sqlite")
+    # для списка объектов
+    api.add_resource(movie_resources.MovieListResource, '/api/film')
+
+    # для одного объекта
+    api.add_resource(movie_resources.MovieResource, '/api/film/<int:id>' )
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
 
